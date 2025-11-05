@@ -13,6 +13,7 @@ public class UssdSession {
     private String currentMenuId;
     private String previousMenuId;
     private String userInput;
+    private int currentPage; 
     private Date createdAt;
     private Date updatedAt;
     private boolean isActive;
@@ -24,6 +25,7 @@ public class UssdSession {
         this.sessionId = sessionId;
         this.phoneNumber = phoneNumber;
         this.currentMenuId = currentMenuId;
+        this.currentPage = 0;
         this.createdAt = new Date();
         this.updatedAt = new Date();
         this.isActive = true;
@@ -76,6 +78,14 @@ public class UssdSession {
 
     public void setUserInput(String userInput) {
         this.userInput = userInput;
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
     }
 
     public Date getCreatedAt() {

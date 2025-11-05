@@ -10,23 +10,24 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(
-                        request -> new org.springframework.web.cors.CorsConfiguration().applyPermitDefaultValues())) // Enable
-                                                                                                                     // CORS
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/ussd/process",
-                                "/ussd/admin/menu",
-                                "/ussd/**",
-                                "/code**/",
-                                "/public/**")
-                        .permitAll()
-                        .anyRequest().authenticated());
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .cors(cors -> cors.configurationSource(
+                                                request -> new org.springframework.web.cors.CorsConfiguration()
+                                                                .applyPermitDefaultValues())) // Enable
+                                                                                              // CORS
+                                .csrf(csrf -> csrf.disable())
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(
+                                                                "/ussd/process",
+                                                                "/ussd/admin/menu",
+                                                                "/ussd/**",
+                                                                "/code**/",
+                                                                "/public/**")
+                                                .permitAll()
+                                                .anyRequest().authenticated());
 
-        return http.build();
-    }
+                return http.build();
+        }
 }
