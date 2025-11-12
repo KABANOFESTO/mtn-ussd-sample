@@ -27,10 +27,13 @@ public class UssdService {
             UssdSession session = getOrCreateSession(sessionId, phoneNumber);
 
             if (text == null || text.isEmpty()) {
+                // Initial request - show root menu
                 session.setCurrentPage(0);
+                session.addToNavigationHistory(ROOT_MENU_ID);
                 sessionRepository.save(session);
                 return showMenu(ROOT_MENU_ID, session);
             } else {
+                // Process single input number (not full chain)
                 return handleUserInput(text, session);
             }
         } catch (Exception e) {
@@ -135,11 +138,11 @@ public class UssdService {
         }
 
         UssdMenu currentMenu = currentMenuOpt.get();
-        String[] inputParts = text.split("\\*");
-        String lastInput = inputParts[inputParts.length - 1];
+        // Use the text directly as single input (not parsing with *)
+        String userInput = text.trim();
 
         // Handle pagination
-        if (lastInput.equals(NEXT_OPTION)) {
+        if (userInput.equals(NEXT_OPTION)) {
             int currentPage = session.getCurrentPage();
             Map<String, UssdOption> regularOptions = getRegularOptions(currentMenu);
             int totalPages = (int) Math.ceil((double) regularOptions.size() / MAX_OPTIONS_PER_PAGE);
@@ -151,7 +154,7 @@ public class UssdService {
             }
         }
 
-        if (lastInput.equals(PREV_OPTION)) {
+        if (userInput.equals(PREV_OPTION)) {
             int currentPage = session.getCurrentPage();
             if (currentPage > 0) {
                 session.setCurrentPage(currentPage - 1);
@@ -164,21 +167,22 @@ public class UssdService {
         if (currentMenu.getOptions() != null && !currentMenu.getOptions().isEmpty()) {
             int optionIndex;
             try {
-                optionIndex = Integer.parseInt(lastInput);
+                optionIndex = Integer.parseInt(userInput);
             } catch (NumberFormatException e) {
                 return new UssdResponse("CON Invalid option. Please try again:\n" +
                         buildMenuMessage(currentMenu, session), false);
             }
 
             // Check for special options first (00, exit options)
-            UssdOption specialOption = currentMenu.getOptions().get(lastInput);
-            if (specialOption != null && (lastInput.equals("00") || lastInput.startsWith("0"))) {
+            UssdOption specialOption = currentMenu.getOptions().get(userInput);
+            if (specialOption != null && (userInput.equals("00") || userInput.startsWith("0"))) {
                 if (specialOption.isEndOption()) {
                     session.setActive(false);
                     sessionRepository.save(session);
                     return new UssdResponse("END " + specialOption.getResponseMessage(), true);
                 } else if (specialOption.getNextMenuId() != null) {
                     session.setCurrentPage(0);
+                    session.addToNavigationHistory(specialOption.getNextMenuId());
                     sessionRepository.save(session);
                     return showMenu(specialOption.getNextMenuId(), session);
                 }
@@ -206,6 +210,7 @@ public class UssdService {
                 return new UssdResponse("END " + selectedOption.getResponseMessage(), true);
             } else if (selectedOption.getNextMenuId() != null) {
                 session.setCurrentPage(0);
+                session.addToNavigationHistory(selectedOption.getNextMenuId());
                 sessionRepository.save(session);
                 return showMenu(selectedOption.getNextMenuId(), session);
             } else {

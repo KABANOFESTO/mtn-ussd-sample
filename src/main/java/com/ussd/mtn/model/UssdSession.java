@@ -13,7 +13,8 @@ public class UssdSession {
     private String currentMenuId;
     private String previousMenuId;
     private String userInput;
-    private int currentPage; 
+    private int currentPage;
+    private java.util.List<String> navigationHistory;
     private Date createdAt;
     private Date updatedAt;
     private boolean isActive;
@@ -26,6 +27,7 @@ public class UssdSession {
         this.phoneNumber = phoneNumber;
         this.currentMenuId = currentMenuId;
         this.currentPage = 0;
+        this.navigationHistory = new java.util.ArrayList<>();
         this.createdAt = new Date();
         this.updatedAt = new Date();
         this.isActive = true;
@@ -110,5 +112,20 @@ public class UssdSession {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public java.util.List<String> getNavigationHistory() {
+        return navigationHistory;
+    }
+
+    public void setNavigationHistory(java.util.List<String> navigationHistory) {
+        this.navigationHistory = navigationHistory;
+    }
+
+    public void addToNavigationHistory(String menuId) {
+        if (this.navigationHistory == null) {
+            this.navigationHistory = new java.util.ArrayList<>();
+        }
+        this.navigationHistory.add(menuId);
     }
 }
