@@ -17,7 +17,7 @@ public class UssdService {
     @Autowired
     private UssdSessionRepository sessionRepository;
 
-    private static final String ROOT_MENU_ID = "ROOT";
+    private static final String ROOT_MENU_ID = "mtn";
     private static final int MAX_OPTIONS_PER_PAGE = 8;
     private static final String NEXT_OPTION = "99";
     private static final String PREV_OPTION = "98";
@@ -27,13 +27,11 @@ public class UssdService {
             UssdSession session = getOrCreateSession(sessionId, phoneNumber);
 
             if (text == null || text.isEmpty()) {
-                // Initial request - show root menu
                 session.setCurrentPage(0);
                 session.addToNavigationHistory(ROOT_MENU_ID);
                 sessionRepository.save(session);
                 return showMenu(ROOT_MENU_ID, session);
             } else {
-                // Process single input number (not full chain)
                 return handleUserInput(text, session);
             }
         } catch (Exception e) {
@@ -250,6 +248,7 @@ public class UssdService {
         return menuRepository.save(menu);
     }
 
+    @SuppressWarnings("null")
     public UssdMenu updateMenu(String menuId, String message, Map<String, UssdOption> options, String menuType) {
         Optional<UssdMenu> existingMenu = menuRepository.findByMenuId(menuId);
         if (existingMenu.isEmpty()) {
